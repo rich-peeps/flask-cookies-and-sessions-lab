@@ -27,7 +27,20 @@ def index_articles():
 
 @app.route('/articles/<int:id>')
 def show_article(id):
-    pass
+    article = Article.query.get(id)
+    if not article:
+        return {'message': 'Article not found'}, 404
+
+    if 'page_views' not in session:
+        session['page_views'] = 0
+
+    session['page_views'] = session['page_views'] + 1
+
+    if session['page_views'] <= 3:
+        article_data = ArticleSchema().dump(article)
+        return make_response(article_data, 200)
+
+    return {'message': 'Maximum pageview limit reached'}, 401
 
 
 if __name__ == '__main__':
